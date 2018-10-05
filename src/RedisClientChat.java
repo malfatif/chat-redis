@@ -8,35 +8,35 @@ import redis.clients.jedis.JedisPubSub;
 public class RedisClientChat {
 
 	private static final String CHANNEL = "chat";
-	private static String nome;
+	private static String name;
 	private static final String REDIS_ADDRESS = "127.0.0.1";
 	private static final Integer REDIS_PORT = 6379;
 	private static Jedis jedis;
 	
-	public static void main(String... string){
-		perguntarNomeDoUsuario();
+	public static void main(String... args){
+		askUserName();
 		subscribeChannelRedis();
-		iniciarChat();
+		initChat();
 	}
 
-	private static Jedis conectarRedis() {
+	private static Jedis connectRedis() {
 		jedis = new Jedis(REDIS_ADDRESS, REDIS_PORT);
 		jedis.connect();
 		return jedis;
 	}
 
-	private static void iniciarChat() {
-		System.out.println("Conectado como "+nome);
+	private static void initChat() {
+		System.out.println("Connected as "+name);
 		
-		String mensagem = "";
-		while(mensagem != null){
-			mensagem = JOptionPane.showInputDialog(null, null,  "Conectado como "+nome +"!. Envie sua Mensagem:", JOptionPane.INFORMATION_MESSAGE);
-			enviarMensagemSeNaoForVazia(mensagem);
+		String message = "";
+		while(message != null){
+			message = JOptionPane.showInputDialog(null, null,  "Connected as "+name +"!. Send your message:", JOptionPane.INFORMATION_MESSAGE);
+			sendMessageIfNotEmpty(message);
 		}
 	}
 
 	private static void subscribeChannelRedis() {
-		Jedis jedis = conectarRedis();
+		Jedis jedis = connectRedis();
 		Thread thread = new Thread(){
 			@Override
 			public void run() {
@@ -52,19 +52,19 @@ public class RedisClientChat {
 		thread.start();
 	}
 
-	private static void enviarMensagemSeNaoForVazia(String mensagem) {
-		Jedis jedis = conectarRedis();
-		if(mensagem ==  null){
+	private static void sendMessageIfNotEmpty(String message) {
+		Jedis jedis = connectRedis();
+		if(message ==  null){
 			return;
 		}
 		Calendar c = Calendar.getInstance();
-		String horaMinuto = c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE); 
+		String hourMinute = c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE); 
 		
-		jedis.publish(CHANNEL,  "("+horaMinuto+") "+ nome +": " +mensagem);
+		jedis.publish(CHANNEL,  "("+hourMinute+") "+ name +": " +message);
 	}
 	
-	private static void perguntarNomeDoUsuario() {
-		nome = JOptionPane.showInputDialog(null, null,  "Digite seu nome:", JOptionPane.INFORMATION_MESSAGE);
+	private static void askUserName() {
+		name = JOptionPane.showInputDialog(null, null,  "Type your name:", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 }
